@@ -1,5 +1,6 @@
 import os, sys
 import json, copy
+import cv2
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from tkinter.simpledialog import askstring
@@ -105,7 +106,7 @@ class MainGUI(tk.Frame):
         tk.Button(self.imgFrame, text="次の画像", command=self.getAfterImg).grid(row=1, column=1)
 
         # キャンバスを表示
-        self.imgCanvas = tk.Canvas(self.imgFrame, bg="white", width=800, height=450)
+        self.imgCanvas = tk.Canvas(self.imgFrame, bg="white", width=self.canvasWidth, height=self.canvasHeight)
         self.imgCanvas.grid(row=10, column=0)
 
         # 初期表示
@@ -123,7 +124,9 @@ class MainGUI(tk.Frame):
 
     def setImage(self, imgPath):
         # 画像を読み込む
-        read_img = Image.open(imgPath)
+        read_img = cv2.imread(imgPath, 1)
+        read_img = cv2.cvtColor(read_img, cv2.COLOR_BGR2RGB)
+        read_img = Image.fromarray(read_img)
 
         # 画像をキャンバスの大きさに変更するための倍率を計算
         imgWidthGain = self.canvasWidth / read_img.width
@@ -138,6 +141,7 @@ class MainGUI(tk.Frame):
 
         # キャンバスに画像を貼る
         img = ImageTk.PhotoImage(image=read_img)
+        self.imgCanvas.delete("all")
         self.imgCanvas.photo = img
         self.imgCanvas.create_image(0, 0, anchor="nw", image=self.imgCanvas.photo)
 
@@ -150,11 +154,13 @@ class MainGUI(tk.Frame):
             with open(self.imgFolderVar.get() + self.resultJson, "r") as f:
                 result = json.load(f)  # 過去の処理結果を読み来む
                 for n, v in result.items():
-                    read_img = Image.open(n)  # 画像を読み込む
+                    # read_img = Image.open(n)  # 画像を読み込む
+                    read_img = cv2.imread(n, 1)
+                    read_img = cv2.cvtColor(read_img, cv2.COLOR_BGR2RGB)
 
                     # 画像をキャンバスの大きさに変更するための倍率を計算
-                    imgWidthGain = self.canvasWidth / read_img.width
-                    imgHeightGain = self.canvasHeight / read_img.height
+                    imgWidthGain = self.canvasWidth / read_img.shape[1]
+                    imgHeightGain = self.canvasHeight / read_img.shape[0]
 
                     # もとの座標からキャンバスの座標に変換
                     for i, (k, x) in enumerate(v):
