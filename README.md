@@ -5,4 +5,6 @@ OpenCVのカスケード分類器を作るために、GUIで枠付け作業が�
 
 物体検出でも使えるようにJSONも出力する。
 
-追加でインストールが必要なライブラリは無いはず。
+次のコマンドを入力してPILとOpenCVをインストールする必要がある
+
+```pip install pillow opencv-python```
